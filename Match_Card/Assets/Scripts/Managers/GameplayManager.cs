@@ -1,12 +1,34 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Nishit.Class;
 using Nishit.Emums;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class GameplayManager : MonoBehaviour
 {
+    public static GameplayManager Instance { get; private set; }
+
+    public event Action<int> OnScoreChanged;
+    public event Action<int> OnAttemptChanged;
+    public event Action<float> OnTimeChanged;
+    public event Action<bool> GameOver;
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     [SerializeField]
     private CardDatabase cardDatabase;
 
@@ -25,7 +47,17 @@ public class GameplayManager : MonoBehaviour
     [SerializeField]
     ClickableCards clickableCardPrefab;
 
+    ClickableCards FlippedCard = null;
+
     private List<ClickableCards> allCards = new();
+
+    float timer = 0f;
+
+    int score = 0;
+
+    int totalPairs = 0;
+
+    bool isGameOver = false;
 
     // Start is called before the first frame update
     void Start()
@@ -34,7 +66,17 @@ public class GameplayManager : MonoBehaviour
             return;
 
         ResizeGrid();
-        SpawnCards(gridX * gridY / 2);
+        totalPairs = gridX * gridY / 2;
+        SpawnCards(totalPairs);
+    }
+
+    void Update()
+    {
+        if (isGameOver)
+            return;
+
+        timer += Time.deltaTime;
+        OnTimeChanged?.Invoke(timer);
     }
 
     public void ResizeGrid()
@@ -113,6 +155,40 @@ public class GameplayManager : MonoBehaviour
             ClickableCards card = Instantiate(clickableCardPrefab, CardsGrid.transform);
             card.Init(value, this, GetCardSprite(value));
             allCards.Add(card);
+        }
+    }
+
+    public void CardFlipped(ClickableCards card)
+    {
+        if (FlippedCard != null && FlippedCard != card)
+        {
+            if (FlippedCard.cardValue == card.cardValue)
+            {
+                // Match found, disable both cards
+                FlippedCard.CardMatched();
+                card.CardMatched();
+                OnScoreChanged?.Invoke(1);
+                OnAttemptChanged?.Invoke(1);
+                score++;
+                if (score >= totalPairs)
+                {
+                    isGameOver = true;
+                    GameOver?.Invoke(true);
+                    Debug.Log("Game Over! All pairs matched.");
+                }
+            }
+            else
+            {
+                // No match, reset both cards
+                FlippedCard.ResetCardToDefault();
+                card.ResetCardToDefault();
+                OnAttemptChanged?.Invoke(1);
+            }
+            FlippedCard = null;
+        }
+        else
+        {
+            FlippedCard = card;
         }
     }
 

@@ -6,8 +6,7 @@ using UnityEngine.UI;
 
 public class ClickableCards : MonoBehaviour, IPointerDownHandler
 {
-    [SerializeField]
-    CardValues cardValue;
+    public CardValues cardValue;
 
     [SerializeField]
     bool CardFlipped = true;
@@ -71,6 +70,7 @@ public class ClickableCards : MonoBehaviour, IPointerDownHandler
             .OnComplete(() =>
             {
                 CardFlipped = true;
+                gameplayManager.CardFlipped(this);
             });
     }
 
@@ -78,16 +78,22 @@ public class ClickableCards : MonoBehaviour, IPointerDownHandler
     {
         Sequence flip = DOTween.Sequence();
 
-        flip.Append(transform.DOScaleX(0f, 0.15f))
+        flip.Append(transform.DOScaleX(0f, 0.25f))
             .AppendCallback(() =>
             {
                 frontFace.gameObject.SetActive(false);
                 backFace.gameObject.SetActive(true);
             })
-            .Append(transform.DOScaleX(1f, 0.15f))
+            .Append(transform.DOScaleX(1f, 0.25f))
             .OnComplete(() =>
             {
                 CardFlipped = false;
             });
+    }
+
+    public void CardMatched()
+    {
+        // Disable the card when matched
+        frontFace.gameObject.SetActive(false);
     }
 }
