@@ -377,6 +377,7 @@
 "Assets/Scripts/Classes And Enums/CardData.cs"
 "Assets/Scripts/Classes And Enums/CardDatabase.cs"
 "Assets/Scripts/Classes And Enums/Enums.cs"
+"Assets/Scripts/Managers/GameAudioManager.cs"
 "Assets/Scripts/Managers/GameplayManager.cs"
 "Assets/Scripts/Managers/UIManager.cs"
 -langversion:9.0

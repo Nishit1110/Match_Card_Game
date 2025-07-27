@@ -50,11 +50,7 @@ public class ClickableCards : MonoBehaviour, IPointerDownHandler
         if (cardMatched)
             return;
 
-        if (CardFlipped)
-        {
-            ResetCardToDefault();
-        }
-        else
+        if (!CardFlipped)
         {
             FlipCard();
         }
@@ -65,18 +61,19 @@ public class ClickableCards : MonoBehaviour, IPointerDownHandler
         // Disable front, enable back after scaleX = 0
         Sequence flip = DOTween.Sequence();
 
-        flip.Append(transform.DOScaleX(0f, 0.15f))
+        flip.Append(transform.DOScaleX(0f, 0.25f))
             .AppendCallback(() =>
             {
                 frontFace.gameObject.SetActive(true);
                 backFace.gameObject.SetActive(false);
             })
-            .Append(transform.DOScaleX(1f, 0.15f))
+            .Append(transform.DOScaleX(1f, 0.25f))
             .OnComplete(() =>
             {
                 CardFlipped = true;
                 gameplayManager.CardFlipped(this);
             });
+        gameplayManager.CardFlipStart(this, flip.Duration());
     }
 
     public void ResetCardToDefault()

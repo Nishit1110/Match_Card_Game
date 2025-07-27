@@ -27,6 +27,7 @@ public class UIManager : MonoBehaviour
     int score = 0;
     int attempts = 0;
     float timer = 0f;
+    int highestComboStreak = 0;
 
     private void Start()
     {
@@ -78,7 +79,7 @@ public class UIManager : MonoBehaviour
         if (isGameOver)
         {
             GameOverInformationText.text =
-                $"Game Over! Final Score: {score}\nTotal Attempts: {attempts}\nTime Taken: {timer:F2} seconds";
+                $"Game Over! Final Score: {score}\nTotal Attempts: {attempts}\nTime Taken: {timer:F2} seconds\nHighest Combo Streak: {highestComboStreak}";
         }
         else
         {
@@ -88,6 +89,10 @@ public class UIManager : MonoBehaviour
 
     void ShowComboStreakNumber(int streak)
     {
+        if (streak > highestComboStreak)
+        {
+            highestComboStreak = streak;
+        }
         ComboStreakText.text = $"Combo x{streak}";
         ComboStreakText.transform.localScale = Vector3.zero;
 

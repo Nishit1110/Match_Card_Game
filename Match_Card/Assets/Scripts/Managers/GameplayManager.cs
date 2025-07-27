@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Nishit.Class;
 using Nishit.Emums;
 using UnityEngine;
@@ -16,6 +17,7 @@ public class GameplayManager : MonoBehaviour
     public event Action<float> OnTimeChanged;
     public event Action<bool> GameOver;
     public event Action<int> StreakChanged;
+    public Action OnCardFlipped;
 
     void Awake()
     {
@@ -63,6 +65,8 @@ public class GameplayManager : MonoBehaviour
     private int totalPairs = 0;
 
     private bool isGameOver = false;
+
+    public bool CanFlipCard;
 
     // Start is called before the first frame update
     void Start()
@@ -114,47 +118,36 @@ public class GameplayManager : MonoBehaviour
 
     private void SpawnCards(int pairCount)
     {
-        // Step 1: Get enum values
-        CardValues[] allValues = (CardValues[])System.Enum.GetValues(typeof(CardValues));
+        CardValues[] allValues = (CardValues[])Enum.GetValues(typeof(CardValues));
 
-        if (pairCount > allValues.Length)
-        {
-            Debug.LogError(
-                "Not enough unique CardValues to generate the requested number of pairs."
-            );
-            return;
-        }
+        List<CardValues> selectedValues = new();
 
-        // Step 2: Randomly pick N unique values
-        List<CardValues> selectedValues = new List<CardValues>();
-        List<int> usedIndexes = new List<int>();
-
+        int index = 0;
         while (selectedValues.Count < pairCount)
         {
-            int randIndex = Random.Range(0, allValues.Length);
-            if (!usedIndexes.Contains(randIndex))
-            {
-                usedIndexes.Add(randIndex);
-                selectedValues.Add(allValues[randIndex]);
-            }
+            selectedValues.Add(allValues[index]);
+
+            index++;
+            if (index >= allValues.Length)
+                index = 0; // Loop back to start
         }
 
-        // Step 3: Duplicate each value to create pairs
-        List<CardValues> spawnPool = new List<CardValues>();
+        // Step 2: Duplicate each value to create pairs
+        List<CardValues> spawnPool = new();
         foreach (var val in selectedValues)
         {
             spawnPool.Add(val);
             spawnPool.Add(val);
         }
 
-        // Step 4: Shuffle the list
+        // Step 3: Shuffle the list
         for (int i = 0; i < spawnPool.Count; i++)
         {
             int randomIndex = Random.Range(i, spawnPool.Count);
             (spawnPool[i], spawnPool[randomIndex]) = (spawnPool[randomIndex], spawnPool[i]);
         }
 
-        // Step 5: Spawn the cards
+        // Step 4: Spawn the cards
         foreach (CardValues value in spawnPool)
         {
             ClickableCards card = Instantiate(clickableCardPrefab, CardsGrid.transform);
@@ -205,13 +198,38 @@ public class GameplayManager : MonoBehaviour
 
                 comboStreak = 0; // 🔁 reset combo streak on fail
             }
-
             FlippedCard = null;
         }
         else
         {
             FlippedCard = card;
         }
+    }
+
+    public Task CardFlipStart(ClickableCards card, float delay = 0.5f)
+    {
+        Debug.Log($"Card flipped: {card.cardValue} with delay {delay}");
+        if (FlippedCard == null)
+        {
+            CanFlipCard = false;
+            OnCardFlipped?.Invoke();
+            return Task.Delay((int)(delay * 1000))
+                .ContinueWith(_ =>
+                {
+                    CanFlipCard = true;
+                });
+        }
+        else if (FlippedCard != null && FlippedCard != card)
+        {
+            CanFlipCard = false;
+            OnCardFlipped?.Invoke();
+            return Task.Delay((int)(delay * 1000))
+                .ContinueWith(_ =>
+                {
+                    CanFlipCard = true;
+                });
+        }
+        return Task.CompletedTask;
     }
 
     private bool IsValidGridSize()
