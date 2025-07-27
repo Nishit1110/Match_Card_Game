@@ -15,6 +15,7 @@ public class GameplayManager : MonoBehaviour
     public event Action<int> OnAttemptChanged;
     public event Action<float> OnTimeChanged;
     public event Action<bool> GameOver;
+    public event Action<int> StreakChanged;
 
     void Awake()
     {
@@ -51,13 +52,17 @@ public class GameplayManager : MonoBehaviour
 
     private List<ClickableCards> allCards = new();
 
-    float timer = 0f;
+    private float timer = 0f;
 
-    int score = 0;
+    private int score = 0;
 
-    int totalPairs = 0;
+    private int pairsFound = 0;
 
-    bool isGameOver = false;
+    private int comboStreak = 0;
+
+    private int totalPairs = 0;
+
+    private bool isGameOver = false;
 
     // Start is called before the first frame update
     void Start()
@@ -164,13 +169,27 @@ public class GameplayManager : MonoBehaviour
         {
             if (FlippedCard.cardValue == card.cardValue)
             {
-                // Match found, disable both cards
+                // ✅ Match found
                 FlippedCard.CardMatched();
                 card.CardMatched();
-                OnScoreChanged?.Invoke(1);
+
+                // Increase streak and score
+                int comboPoints = (int)Mathf.Pow(2, comboStreak); // 2^streak
+                score += comboPoints;
+
+                OnScoreChanged?.Invoke(score);
                 OnAttemptChanged?.Invoke(1);
-                score++;
-                if (score >= totalPairs)
+
+                pairsFound++;
+                comboStreak++; // streak increases on correct match
+
+                if (comboStreak > 1)
+                {
+                    StreakChanged?.Invoke(comboStreak);
+                    Debug.Log($"Combo Streak: {comboStreak}");
+                }
+
+                if (pairsFound >= totalPairs) // or use a separate match counter
                 {
                     isGameOver = true;
                     GameOver?.Invoke(true);
@@ -179,11 +198,14 @@ public class GameplayManager : MonoBehaviour
             }
             else
             {
-                // No match, reset both cards
                 FlippedCard.ResetCardToDefault();
                 card.ResetCardToDefault();
+
                 OnAttemptChanged?.Invoke(1);
+
+                comboStreak = 0; // 🔁 reset combo streak on fail
             }
+
             FlippedCard = null;
         }
         else

@@ -11,6 +11,8 @@ public class ClickableCards : MonoBehaviour, IPointerDownHandler
     [SerializeField]
     bool CardFlipped = true;
 
+    bool cardMatched = false;
+
     [SerializeField]
     RectTransform frontFace;
 
@@ -45,6 +47,9 @@ public class ClickableCards : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (cardMatched)
+            return;
+
         if (CardFlipped)
         {
             ResetCardToDefault();
@@ -93,6 +98,7 @@ public class ClickableCards : MonoBehaviour, IPointerDownHandler
 
     public void CardMatched()
     {
+        cardMatched = true;
         // Disable the card when matched
         frontFace.gameObject.SetActive(false);
     }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
@@ -18,6 +19,9 @@ public class UIManager : MonoBehaviour
     TextMeshProUGUI GameOverInformationText;
 
     [SerializeField]
+    TextMeshProUGUI ComboStreakText;
+
+    [SerializeField]
     GameObject GameOverPanel;
 
     int score = 0;
@@ -30,6 +34,7 @@ public class UIManager : MonoBehaviour
         GameplayManager.Instance.OnAttemptChanged += UpdateAttempts;
         GameplayManager.Instance.OnTimeChanged += UpdateTimer;
         GameplayManager.Instance.GameOver += ShowGameOverPanel;
+        GameplayManager.Instance.StreakChanged += ShowComboStreakNumber;
         UpdateScore(0);
         UpdateAttempts(0);
     }
@@ -39,6 +44,8 @@ public class UIManager : MonoBehaviour
         GameplayManager.Instance.OnScoreChanged -= UpdateScore;
         GameplayManager.Instance.OnAttemptChanged -= UpdateAttempts;
         GameplayManager.Instance.OnTimeChanged -= UpdateTimer;
+        GameplayManager.Instance.GameOver -= ShowGameOverPanel;
+        GameplayManager.Instance.StreakChanged -= ShowComboStreakNumber;
     }
 
     private void UpdateScore(int score)
@@ -77,5 +84,34 @@ public class UIManager : MonoBehaviour
         {
             GameOverInformationText.text = string.Empty;
         }
+    }
+
+    void ShowComboStreakNumber(int streak)
+    {
+        ComboStreakText.text = $"Combo x{streak}";
+        ComboStreakText.transform.localScale = Vector3.zero;
+
+        Color startColor = ComboStreakText.color;
+        startColor.a = 0f;
+        ComboStreakText.color = startColor;
+
+        Sequence comboSequence = DOTween.Sequence();
+
+        comboSequence
+            .Append(
+                ComboStreakText.DOColor(
+                    new Color(startColor.r, startColor.g, startColor.b, 1f),
+                    0.2f
+                )
+            )
+            .Join(ComboStreakText.transform.DOScale(1.2f, 0.2f).SetEase(Ease.OutBack))
+            .AppendInterval(1f)
+            .Append(
+                ComboStreakText.DOColor(
+                    new Color(startColor.r, startColor.g, startColor.b, 0f),
+                    0.3f
+                )
+            )
+            .Join(ComboStreakText.transform.DOScale(0f, 0.3f).SetEase(Ease.InBack));
     }
 }
