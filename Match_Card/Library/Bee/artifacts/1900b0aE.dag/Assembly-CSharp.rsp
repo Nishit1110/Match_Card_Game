@@ -374,7 +374,10 @@
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEditor.UI.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEngine.UI.ref.dll"
 "Assets/Scripts/Cards/ClickableCards.cs"
-"Assets/Scripts/Managers/GridManager.cs"
+"Assets/Scripts/Classes And Enums/CardData.cs"
+"Assets/Scripts/Classes And Enums/CardDatabase.cs"
+"Assets/Scripts/Classes And Enums/Enums.cs"
+"Assets/Scripts/Managers/GameplayManager.cs"
 -langversion:9.0
 /deterministic
 /optimize+
