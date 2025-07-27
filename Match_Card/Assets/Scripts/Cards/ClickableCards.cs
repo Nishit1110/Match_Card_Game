@@ -47,7 +47,7 @@ public class ClickableCards : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (cardMatched)
+        if (cardMatched || !gameplayManager.CanFlipCard)
             return;
 
         if (!CardFlipped)
