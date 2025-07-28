@@ -2,7 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -24,6 +27,21 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     GameObject GameOverPanel;
 
+    [SerializeField]
+    Button PauseButton;
+
+    [SerializeField]
+    Button ResumeButton;
+
+    [SerializeField]
+    Button HomeButtonPauseMenu;
+
+    [SerializeField]
+    Button HomeButtonGameOverMenu;
+
+    [SerializeField]
+    GameObject PausePanel;
+
     int score = 0;
     int attempts = 0;
     float timer = 0f;
@@ -36,6 +54,12 @@ public class UIManager : MonoBehaviour
         GameplayManager.Instance.OnTimeChanged += UpdateTimer;
         GameplayManager.Instance.GameOver += ShowGameOverPanel;
         GameplayManager.Instance.StreakChanged += ShowComboStreakNumber;
+
+        HomeButtonPauseMenu.onClick.AddListener(BackToHome);
+        HomeButtonGameOverMenu.onClick.AddListener(BackToHome);
+        PauseButton.onClick.AddListener(PauseGame);
+        ResumeButton.onClick.AddListener(ResumeGame);
+
         UpdateScore(0);
         UpdateAttempts(0);
     }
@@ -47,6 +71,11 @@ public class UIManager : MonoBehaviour
         GameplayManager.Instance.OnTimeChanged -= UpdateTimer;
         GameplayManager.Instance.GameOver -= ShowGameOverPanel;
         GameplayManager.Instance.StreakChanged -= ShowComboStreakNumber;
+
+        HomeButtonPauseMenu.onClick.RemoveListener(BackToHome);
+        HomeButtonGameOverMenu.onClick.RemoveListener(BackToHome);
+        PauseButton.onClick.RemoveListener(PauseGame);
+        ResumeButton.onClick.RemoveListener(ResumeGame);
     }
 
     private void UpdateScore(int score)
@@ -118,5 +147,25 @@ public class UIManager : MonoBehaviour
                 )
             )
             .Join(ComboStreakText.transform.DOScale(0f, 0.3f).SetEase(Ease.InBack));
+    }
+
+    public void PauseGame()
+    {
+        Time.timeScale = 0f;
+        PausePanel.SetActive(true);
+        GameplayManager.Instance.CanFlipCard = false;
+    }
+
+    public void ResumeGame()
+    {
+        Time.timeScale = 1f;
+        PausePanel.SetActive(false);
+        GameplayManager.Instance.CanFlipCard = true;
+    }
+
+    void BackToHome()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("Menu_Scene");
     }
 }

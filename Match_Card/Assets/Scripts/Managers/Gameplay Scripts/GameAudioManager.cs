@@ -30,7 +30,7 @@ public class GameAudioManager : MonoBehaviour
     void Start()
     {
         isMuted = PlayerPrefs.GetInt("IsMuted", 0) == 1;
-        if (isMuted)
+        if (!isMuted)
         {
             GameplayManager.Instance.OnScoreChanged += PlayCardMatchSound;
             GameplayManager.Instance.OnAttemptChanged += PlayWrongMatchSound;
@@ -42,7 +42,7 @@ public class GameAudioManager : MonoBehaviour
 
     private void OnDisable()
     {
-        if (isMuted)
+        if (!isMuted)
         {
             GameplayManager.Instance.OnScoreChanged -= PlayCardMatchSound;
             GameplayManager.Instance.OnAttemptChanged -= PlayWrongMatchSound;
