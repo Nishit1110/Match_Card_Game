@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using Nishit.Class;
 using TMPro;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -82,24 +83,33 @@ public class UIManager : MonoBehaviour
     {
         this.score += score;
         if (this.score < 0)
-            this.score = 0; // Prevent negative score
-        ScoreText.text = $"Score : {this.score}";
+            this.score = 0;
+
+        var sb = StringBuilderPool.Get();
+        sb.Append("Score : ").Append(this.score);
+        ScoreText.text = StringBuilderPool.Release();
     }
 
     private void UpdateAttempts(int attempts)
     {
         this.attempts += attempts;
-        if (attempts < 0)
-            attempts = 0; // Prevent negative attempts
-        AttemptsText.text = $"Attempts : {this.attempts}";
+        if (this.attempts < 0)
+            this.attempts = 0;
+
+        var sb = StringBuilderPool.Get();
+        sb.Append("Attempts : ").Append(this.attempts);
+        AttemptsText.text = StringBuilderPool.Release();
     }
 
     private void UpdateTimer(float time)
     {
         timer = time;
         if (timer < 0)
-            timer = 0; // Prevent negative time
-        TimerText.text = $"Time : {time:F2}";
+            timer = 0;
+
+        var sb = StringBuilderPool.Get();
+        sb.Append("Time : ").AppendFormat("{0:F2}", timer);
+        TimerText.text = StringBuilderPool.Release();
     }
 
     void ShowGameOverPanel(bool isGameOver)
@@ -107,8 +117,17 @@ public class UIManager : MonoBehaviour
         GameOverPanel.SetActive(isGameOver);
         if (isGameOver)
         {
-            GameOverInformationText.text =
-                $"Game Over! Final Score: {score}\nTotal Attempts: {attempts}\nTime Taken: {timer:F2} seconds\nHighest Combo Streak: {highestComboStreak}";
+            var sb = StringBuilderPool.Get();
+            sb.Append("Game Over! Final Score: ")
+                .Append(score)
+                .Append("\nTotal Attempts: ")
+                .Append(attempts)
+                .Append("\nTime Taken: ")
+                .AppendFormat("{0:F2}", timer)
+                .Append(" seconds")
+                .Append("\nHighest Combo Streak: ")
+                .Append(highestComboStreak);
+            GameOverInformationText.text = StringBuilderPool.Release();
         }
         else
         {
@@ -119,10 +138,12 @@ public class UIManager : MonoBehaviour
     void ShowComboStreakNumber(int streak)
     {
         if (streak > highestComboStreak)
-        {
             highestComboStreak = streak;
-        }
-        ComboStreakText.text = $"Combo x{streak}";
+
+        var sb = StringBuilderPool.Get();
+        sb.Append("Combo x").Append(streak);
+        ComboStreakText.text = StringBuilderPool.Release();
+
         ComboStreakText.transform.localScale = Vector3.zero;
 
         Color startColor = ComboStreakText.color;

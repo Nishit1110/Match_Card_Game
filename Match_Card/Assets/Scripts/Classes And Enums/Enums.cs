@@ -2,7 +2,6 @@ namespace Nishit.Emums
 {
     public enum CardValues
     {
-        None,
         Anchor,
         Circle,
         Crown,

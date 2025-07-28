@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace Nishit.Class
@@ -32,6 +34,26 @@ namespace Nishit.Class
             }
 
             return new Vector2Int(bestRows, bestCols); // or (cols, rows) if you want horizontal emphasis
+        }
+    }
+
+    public static class StringBuilderPool
+    {
+        [ThreadStatic]
+        private static StringBuilder cachedBuilder;
+
+        public static StringBuilder Get()
+        {
+            if (cachedBuilder == null)
+                cachedBuilder = new StringBuilder(128); // initial capacity
+
+            cachedBuilder.Clear();
+            return cachedBuilder;
+        }
+
+        public static string Release()
+        {
+            return cachedBuilder.ToString();
         }
     }
 }

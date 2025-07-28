@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26715b18090fa0948aec92d192d0e6fb, type: 3}
   m_Name: Circle
   m_EditorClassIdentifier: 
-  cardValue: 2
+  cardValue: 1
   cardImage: {fileID: 1316420823, guid: 85aa03963efa12d4c8b33539c9df6633, type: 3}
