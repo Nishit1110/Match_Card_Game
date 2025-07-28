@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Nishit.Class;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -30,9 +31,23 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField]
     Sprite UnmuteSprite;
 
+    [Space(10)]
+    [Header("Stored Data Display")]
+    [SerializeField]
+    TextMeshProUGUI HighestComboStreakText;
+
+    [SerializeField]
+    TextMeshProUGUI HighestScoreText;
+
     int difficultyLevel = 2;
 
     void Start()
+    {
+        AssignButtons();
+        LoadDataScores();
+    }
+
+    void AssignButtons()
     {
         difficultyLevel = PlayerPrefs.GetInt("DifficultyLevel", difficultyLevel);
         DifficultySlider.value = difficultyLevel;
@@ -44,6 +59,25 @@ public class MainMenuManager : MonoBehaviour
         SoundButton.onClick.AddListener(ToggleSound);
         bool isMuted = PlayerPrefs.GetInt("IsMuted", 0) == 1;
         ChangeVolumeSprite(isMuted);
+    }
+
+    void LoadDataScores()
+    {
+        var StringBuffer = StringBuilderPool.Get();
+
+        if (HighestComboStreakText)
+        {
+            StringBuffer.Append("Highest Combo : ");
+            StringBuffer.Append(PlayerPrefs.GetInt("HighestComboStreak", 0));
+            HighestComboStreakText.text = StringBuilderPool.Release();
+        }
+        if (HighestScoreText)
+        {
+            StringBuffer.Clear();
+            StringBuffer.Append("Highest Score : ");
+            StringBuffer.Append(PlayerPrefs.GetInt("HighestScore", 0));
+            HighestScoreText.text = StringBuilderPool.Release();
+        }
     }
 
     void OnDisable()
@@ -75,5 +109,10 @@ public class MainMenuManager : MonoBehaviour
     void ChangeVolumeSprite(bool isMuted)
     {
         SoundButton.image.sprite = isMuted ? MuteSprite : UnmuteSprite;
+    }
+
+    void OnDestroy()
+    {
+        PlayerPrefs.Save();
     }
 }

@@ -46,7 +46,9 @@ public class UIManager : MonoBehaviour
     int score = 0;
     int attempts = 0;
     float timer = 0f;
-    int highestComboStreak = 0;
+    int currentHighestComboStreak = 0;
+    int HighestComboStreak = 0;
+    int HighestScore = 0;
 
     private void Start()
     {
@@ -56,13 +58,16 @@ public class UIManager : MonoBehaviour
         GameplayManager.Instance.GameOver += ShowGameOverPanel;
         GameplayManager.Instance.StreakChanged += ShowComboStreakNumber;
 
-        HomeButtonPauseMenu.onClick.AddListener(BackToHome);
-        HomeButtonGameOverMenu.onClick.AddListener(BackToHome);
+        HomeButtonPauseMenu.onClick.AddListener(() => BackToHome(false));
+        HomeButtonGameOverMenu.onClick.AddListener(() => BackToHome(true));
         PauseButton.onClick.AddListener(PauseGame);
         ResumeButton.onClick.AddListener(ResumeGame);
 
         UpdateScore(0);
         UpdateAttempts(0);
+
+        HighestComboStreak = PlayerPrefs.GetInt("HighestComboStreak", 0);
+        HighestScore = PlayerPrefs.GetInt("HighestScore", 0);
     }
 
     private void OnDisable()
@@ -73,8 +78,8 @@ public class UIManager : MonoBehaviour
         GameplayManager.Instance.GameOver -= ShowGameOverPanel;
         GameplayManager.Instance.StreakChanged -= ShowComboStreakNumber;
 
-        HomeButtonPauseMenu.onClick.RemoveListener(BackToHome);
-        HomeButtonGameOverMenu.onClick.RemoveListener(BackToHome);
+        HomeButtonPauseMenu.onClick.RemoveAllListeners();
+        HomeButtonGameOverMenu.onClick.RemoveAllListeners();
         PauseButton.onClick.RemoveListener(PauseGame);
         ResumeButton.onClick.RemoveListener(ResumeGame);
     }
@@ -126,7 +131,7 @@ public class UIManager : MonoBehaviour
                 .AppendFormat("{0:F2}", timer)
                 .Append(" seconds")
                 .Append("\nHighest Combo Streak: ")
-                .Append(highestComboStreak);
+                .Append(currentHighestComboStreak);
             GameOverInformationText.text = StringBuilderPool.Release();
         }
         else
@@ -137,8 +142,8 @@ public class UIManager : MonoBehaviour
 
     void ShowComboStreakNumber(int streak)
     {
-        if (streak > highestComboStreak)
-            highestComboStreak = streak;
+        if (streak > currentHighestComboStreak)
+            currentHighestComboStreak = streak;
 
         var sb = StringBuilderPool.Get();
         sb.Append("Combo x").Append(streak);
@@ -184,8 +189,20 @@ public class UIManager : MonoBehaviour
         GameplayManager.Instance.CanFlipCard = true;
     }
 
-    void BackToHome()
+    void BackToHome(bool CompleteMatch = false)
     {
+        if (CompleteMatch)
+        {
+            if (currentHighestComboStreak > HighestComboStreak)
+            {
+                PlayerPrefs.SetInt("HighestComboStreak", currentHighestComboStreak);
+            }
+            if (score > HighestScore)
+            {
+                PlayerPrefs.SetInt("HighestScore", score);
+            }
+        }
+        PlayerPrefs.Save();
         Time.timeScale = 1f;
         SceneManager.LoadScene("Menu_Scene");
     }
