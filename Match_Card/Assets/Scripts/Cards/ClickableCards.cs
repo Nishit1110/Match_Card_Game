@@ -97,6 +97,21 @@ public class ClickableCards : MonoBehaviour, IPointerDownHandler
     {
         cardMatched = true;
         // Disable the card when matched
-        frontFace.gameObject.SetActive(false);
+        // Ensure correct face is visible
+        backFace.gameObject.SetActive(false);
+        frontFace.gameObject.SetActive(true);
+
+        // Reset transform scale
+        transform.localScale = Vector3.one;
+
+        // Animate match effect
+        Sequence matchSequence = DOTween.Sequence();
+
+        matchSequence
+            .Append(transform.DOScale(0f, 0.3f).SetEase(Ease.InBack))
+            .AppendCallback(() =>
+            {
+                frontFace.gameObject.SetActive(false);
+            });
     }
 }
